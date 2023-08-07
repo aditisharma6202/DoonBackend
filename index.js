@@ -63,6 +63,9 @@ const filefilter = (req,file,cb)=>{
 //admin API's
  app.post('/add-categories',upload.single('image'),categoryController.add_categories)
  app.get('/get_category/:category_id',categoryController.get_category)
+ app.get('/get_all_categories/',categoryController.get_all_categories)
+
+ 
  app.patch('/update-categories/:category_id',upload.single('image'),categoryController.update_category)
  app.delete('/delete_category/:category_id',categoryController.delete_category)
  app.post('/createProduct/:category_id',upload.single('image'),productController.createProduct)
