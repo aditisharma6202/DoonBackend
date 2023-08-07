@@ -3,13 +3,19 @@
 var db = require('../models/index')
 // var category = db.category
 var userProfile = db.userProfile
-const { Op } = require('sequelize');
+const { Op ,Sequelize} = require('sequelize');
 const {JWT_SECRET} = process.env
 const jwt = require('jsonwebtoken')
+var Product = db.product
+const FuzzySet = require('fuzzyset');
+
+
+
 
 
 const sendMail = require('../helper/sendMail')
 const randomstring = require('randomstring');
+const { log } = require('console');
 
 
 
@@ -54,6 +60,41 @@ const signupUsers = async (req, res) => {
   }
 };
 
+
+const resendEmail = async (req, res) => {
+  const email = req.body.email;
+
+  try {
+    // Find the user by email
+    const user = await userProfile.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Generate a new 6-digit OTP
+    const newOtp = randomstring.generate({ length: 6, charset: 'numeric' });
+
+    // Create the email content with the new OTP
+    const mailSubject = 'New OTP for Mail Verification';
+    const content = `<p>Your new OTP for mail verification is: ${newOtp}</p>`;
+
+    // Send the email with the new OTP
+    await sendMail(email, mailSubject, content);
+
+    // Update the user's OTP in the database
+    await user.update({ OTP: newOtp });
+
+    res.status(200).json({ message: 'Email resent successfully with new OTP.' });
+  } catch (error) {
+    console.error('Error resending email or updating OTP:', error);
+    res.status(500).json({ message: 'Error resending email or updating OTP.' });
+  }
+};
 
   const verifyOTP = (req, res) => {
 
@@ -221,8 +262,87 @@ const signupUsers = async (req, res) => {
         res.status(500).json({ message: 'Error logging out user.' });
       });
   };
-  
-  
 
-  module.exports = { signupUsers,verifyOTP,savePassword,addUserDetails,loginUser,userLogout};
+
+
+ 
+const changePassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if the user exists
+    const user = await userProfile.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Generate a unique identifier (you can use user ID or any other unique field)
+    const identifier = user.user_id; // Replace this with the unique identifier
+
+    // Create the link with the unique identifier and the website password reset page route
+    const resetLink = `https://yourwebsite.com/reset-password?user=${identifier}`;
+
+    // Create the email content with the reset link
+    const mailSubject = 'Reset Password Link';
+    const content = `<p>Click the link below to reset your password:<br><a href="${resetLink}">${resetLink}</a></p>`;
+
+    try {
+      // Send the email with the reset link
+      await sendMail(email, mailSubject, content);
+
+      res.status(200).json({ message: 'Reset password link sent successfully. Please check your email.' });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ message: 'Error sending email.' });
+    }
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Error changing password.' });
+  }
+};
+
+const searchProduct = async (req, res) => {
+  try {
+    const search = req.body.search;
+
+    // Perform related name search (case-insensitive) using raw SQL query
+    const relatedProducts = await Product.findAll({
+      where: Sequelize.literal(`LOWER(name) LIKE LOWER('%${search}%') AND BINARY name != '${search}'`),
+    });
+
+    // Find the initial searched product to get its category
+    const initialProduct = await Product.findOne({
+      where: Sequelize.literal(`LOWER(name) LIKE LOWER('%${search}%')`),
+    });
+
+    if (initialProduct) {
+      const categoryId = initialProduct.category_id;
+
+      // Fetch suggestion products with the same category ID
+      const suggestionProducts = await Product.findAll({
+        where: {
+          [Op.and]: [
+            { category_id: categoryId }, // Same category criteria
+            { product_id: { [Op.not]: initialProduct.product_id } }, // Exclude the initial product
+          ],
+        },
+        limit: 4, // Limit the number of suggestion products
+      });
+
+      // Combine the main search results and related products
+      const mainProducts = [...relatedProducts].filter(
+        (product, index, self) => index === self.findIndex((p) => p.product_id === product.product_id)
+      );
+
+      res.status(200).json({ mainProducts, suggestionProducts });
+    } else {
+      res.status(404).json({ message: 'Product not found.' });
+    }
+  } catch (error) {
+    console.error('Error searching products:', error);
+    res.status(500).json({ message: 'Error searching products.' });
+  }
+};
+
+  module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,loginUser,userLogout,changePassword,searchProduct};
 
