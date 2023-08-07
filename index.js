@@ -66,15 +66,17 @@ const filefilter = (req,file,cb)=>{
  app.get('/get_all_categories/',categoryController.get_all_categories)
 
  
- app.post('/update-categories/:category_id',upload.single('image'),categoryController.update_category)
- app.delete('/delete_category/:category_id',categoryController.delete_category)
+ app.post('/update-categories/',upload.single('image'),categoryController.update_category)
+ app.post('/delete_category/',categoryController.delete_category)
  app.post('/createProduct/:category_id',upload.single('image'),productController.createProduct)
  app.get('/getProductById/:product_id',productController.getProductById)
- app.post('/updateProduct/:product_id',upload.single('image'),productController.updateProduct)
- app.delete('/deleteProduct/:product_id',productController.deleteProduct)
+ app.patch('/updateProduct/:product_id',upload.single('image'),productController.updateProduct)
+ app.post('/deleteProduct/:product_id',productController.deleteProduct)
  app.get('/getProductsByCategoryId/:category_id',productController.getProductsByCategoryId)
  app.post('/Admin_signup',adminController.Admin_signup)
  app.get('/Admin_login',adminController.Admin_login)
+ app.post('/addProductWithVariants',adminController.addProductWithVariants)
+
 
  //userAPI
  app.get('/getAllUsers',adminController.getAllUsers)
@@ -91,6 +93,9 @@ const filefilter = (req,file,cb)=>{
  app.post('/addToCart/',isAuthorize,userController.addToCart)
  app.get('/getUserDetails/',isAuthorize,userController.getUserDetails)
  app.get('/getUserCart/',isAuthorize,userController.getUserCart)
+
+
+ 
 
  
 
