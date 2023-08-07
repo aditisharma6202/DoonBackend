@@ -388,6 +388,7 @@ const searchProduct = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
+    // Check for the JWT token in the request header
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: Token missing' });
@@ -396,46 +397,75 @@ const addToCart = async (req, res) => {
     // Verify the token and get the user_id from the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user_id;
-    console.log(userId);
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 
-    const {  product_id, quantity, price } = req.body;
+    const { product_id, quantity } = req.body;
 
-    // Calculate the total price for the cart item
-    const total_price = quantity * price;
-
-    // Check if the product is already in the user's cart
-    const existingCartItem = await CartItems.findOne({
-      where: {
-        user_id: userId,
-        product_id: product_id,
-      },
-    });
-
-    if (existingCartItem) {
-      // Update the quantity and total price for the existing cart item
-      existingCartItem.quantity += quantity;
-      existingCartItem.total_price += total_price;
-      await existingCartItem.save();
-    } else {
-      // Create a new cart item if the product is not in the cart
-      await CartItems.create({
-        user_id: userId,
-        product_id: product_id,
-        quantity: quantity,
-        total_price: total_price,
-      });
+    // Retrieve product details from the database based on product_id
+    const product = await Product.findOne({ where: { product_id: product_id } });
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.status(200).json({ message: 'Product added to cart successfully.' });
+    // Calculate price and total_price based on the product and quantity
+    const price = product.price;
+    const total_price = price * quantity;
+
+    // Create a new cart item in the database
+    const newCartItem = await CartItems.create({
+      product_id,
+      user_id: userId,
+      quantity,
+      total_price,
+    });
+
+    res.status(201).json({ message: 'Product added to cart successfully', cartItem: newCartItem });
   } catch (error) {
     console.error('Error adding product to cart:', error);
-    res.status(500).json({ message: 'Error adding product to cart.' });
+    res.status(500).json({ error: 'Failed to add product to cart' });
   }
 };
 
+const getUserCart = async (req, res) => {
+  try {
+    // Check for the JWT token in the request header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
 
-  module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,searchProduct,addToCart};
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    // Fetch the cart items for the user
+    const cartItems = await CartItems.findAll({
+      where: { user_id: userId },
+      include: { model: Product }, // Include the related product details
+    });
+
+    // Calculate the total price of the cart
+    let total_price = 0;
+    cartItems.forEach((cartItem) => {
+      total_price += cartItem.total_price;
+    });
+
+    res.status(200).json({ cartItems, total_price });
+  } catch (error) {
+    console.error('Error getting user cart:', error);
+    res.status(500).json({ error: 'Failed to get user cart' });
+  }
+};
+
+module.exports = getUserCart;
+
+
+  module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,
+    searchProduct,addToCart,
+    getUserCart};
 
