@@ -7,6 +7,10 @@
 var db = require('../models/index')
 var Admin = db.admin
 var userProfile = db.userProfile
+var product = db.product
+var productVariant = db.productVariant
+
+
 
 
 
@@ -103,4 +107,39 @@ const saltRounds = 10;
     }
   };
 
-  module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth}
+
+
+  const addProductWithVariants = async (req, res) => {
+    try {
+      const { name, description, category_id, price, discount_percentage, variants } = req.body;
+  
+      // Create the main product
+      const newProduct = await product.create({
+        name,
+        description,
+        category_id,
+        price,
+        discount_percentage,
+      });
+  
+      // Create variants for the product
+      for (const variantData of variants) {
+        const { size, color, quantity, variant_price } = variantData;
+  
+        const newVariant = await productVariant.create({
+          product_id: newProduct.product_id,
+          size,
+          color,
+        });
+  
+   
+      }
+  
+      res.status(201).json({ message: 'Product with variants added successfully.',data:newProduct });
+    } catch (error) {
+      console.error('Error adding product with variants:', error);
+      res.status(500).json({ message: 'Error adding product with variants.' });
+    }
+  };
+
+  module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants}

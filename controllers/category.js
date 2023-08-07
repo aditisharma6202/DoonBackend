@@ -89,7 +89,7 @@ const add_categories = async (req, res) => {
   const update_category = async (req, res) => {
     try {
       const { category_name, description } = req.body;
-      const categoryId = req.params.category_id; 
+      const categoryId = req.body.category_id; 
       const imageUrl = req.file ? req.file.filename : null; 
   
       const existingCategory = await category.findByPk(categoryId);
@@ -118,7 +118,7 @@ const add_categories = async (req, res) => {
 
   const delete_category = async (req, res) => {
     try {
-      const categoryId = req.params.category_id; // Assuming you pass the category ID in the URL parameter "id"
+      const categoryId = req.body.category_id; // Assuming you pass the category ID in the URL parameter "id"
   
       // Check if the category exists
       const existingCategory = await category.findByPk(categoryId);
