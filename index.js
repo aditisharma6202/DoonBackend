@@ -79,7 +79,7 @@ const filefilter = (req,file,cb)=>{
  app.post('/signupUsers',userController.signupUsers)
  app.post('/verifyOTP/:id',userController.verifyOTP)
  app.post('/savePassword/',userController.savePassword)
- app.get('/loginUser/',userController.loginUser)
+ app.post('/loginUser/',userController.loginUser)
  app.post('/addUserDetails/', isAuthorize,userController.addUserDetails)
  app.post('/userLogout/', isAuthorize,userController.userLogout)
 
