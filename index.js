@@ -87,6 +87,9 @@ const filefilter = (req,file,cb)=>{
  app.post('/resendEmail/',userController.resendEmail)
  app.post('/addToCart/',isAuthorize,userController.addToCart)
  app.get('/getUserDetails/',isAuthorize,userController.getUserDetails)
+ app.get('/getUserCart/',isAuthorize,userController.getUserCart)
+
+ 
 
  
 
