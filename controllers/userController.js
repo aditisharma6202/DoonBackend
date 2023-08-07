@@ -3,6 +3,8 @@
 var db = require('../models/index')
 // var category = db.category
 var userProfile = db.userProfile
+var CartItems = db.cartItem
+
 const { Op ,Sequelize} = require('sequelize');
 const {JWT_SECRET} = process.env
 const jwt = require('jsonwebtoken')
@@ -209,6 +211,7 @@ const resendEmail = async (req, res) => {
       // Verify the token and get the user_id from the payload
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decoded.user_id;
+      console.log(userId);
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized: Invalid token' });
       }
@@ -246,6 +249,44 @@ const resendEmail = async (req, res) => {
       res.status(500).json({ error: 'Failed to add user details' });
     }
   };
+
+
+
+
+  const getUserDetails = async (req, res) => {
+    try {
+      // Check for the JWT token in the request header
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ error: 'Unauthorized: Token missing' });
+      }
+  
+      // Verify the token and get the user_id from the payload
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.user_id;
+      console.log(userId);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+      }
+  
+      // Retrieve the user details from the database
+      const userDetails = await userProfile.findOne({ where: { user_id: userId } });
+  
+      if (!userDetails) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      res.status(200).json({
+        message: 'User details retrieved successfully',
+        user: userDetails,
+      });
+    } catch (error) {
+      console.error('Error retrieving user details:', error);
+      res.status(500).json({ error: 'Failed to retrieve user details' });
+    }
+  };
+
+
 
   const userLogout = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]; 
@@ -344,5 +385,57 @@ const searchProduct = async (req, res) => {
   }
 };
 
-  module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,loginUser,userLogout,changePassword,searchProduct};
+
+const addToCart = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    console.log(userId);
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    const {  product_id, quantity, price } = req.body;
+
+    // Calculate the total price for the cart item
+    const total_price = quantity * price;
+
+    // Check if the product is already in the user's cart
+    const existingCartItem = await CartItems.findOne({
+      where: {
+        user_id: userId,
+        product_id: product_id,
+      },
+    });
+
+    if (existingCartItem) {
+      // Update the quantity and total price for the existing cart item
+      existingCartItem.quantity += quantity;
+      existingCartItem.total_price += total_price;
+      await existingCartItem.save();
+    } else {
+      // Create a new cart item if the product is not in the cart
+      await CartItems.create({
+        user_id: userId,
+        product_id: product_id,
+        quantity: quantity,
+        total_price: total_price,
+      });
+    }
+
+    res.status(200).json({ message: 'Product added to cart successfully.' });
+  } catch (error) {
+    console.error('Error adding product to cart:', error);
+    res.status(500).json({ message: 'Error adding product to cart.' });
+  }
+};
+
+
+  module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,searchProduct,addToCart};
 
