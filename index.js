@@ -56,7 +56,8 @@ const filefilter = (req,file,cb)=>{
  var categoryController = require('./controllers/category')
  var productController = require('./controllers/productController')
  var adminController = require('./controllers/adminController')
- var userController = require('./controllers/userController')
+ var userController = require('./controllers/userController');
+const { log } = require("console");
 
 
 
@@ -75,14 +76,32 @@ const filefilter = (req,file,cb)=>{
  app.get('/getProductsByCategoryId/:category_id',productController.getProductsByCategoryId)
  app.post('/Admin_signup',adminController.Admin_signup)
  app.get('/Admin_login',adminController.Admin_login)
-//  app.post('/addProductWithVariants', upload.array('variants[0][images]', 2), adminController.addProductWithVariants);
 
 
 app.post('/addProductWithVariants', upload.fields([
-    { name: 'variants[0][images]', maxCount: 2 },
-    { name: 'variants[1][images]', maxCount: 2 },
-    // Add more fields for additional variants as needed
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 },
   ]), adminController.addProductWithVariants);
+
+  app.post('/addVariant', upload.fields([{ name: 'image1', maxCount: 1 }, { name: 'image2', maxCount: 1 },{name: 'image3', maxCount: 1 }]),
+   adminController.addVariant);
+
+   app.post('/updateMainProduct', upload.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 },
+  ]), adminController.updateMainProduct);
+
+
+  app.get('/getMainProductById',adminController.getMainProductById)
+  app.post('/deleteMainProduct',adminController.deleteMainProduct)
+
+
+  
+
+
+  
 
  //userAPI
  app.get('/getAllUsers',adminController.getAllUsers)
@@ -101,7 +120,9 @@ app.post('/addProductWithVariants', upload.fields([
  app.get('/getUserCart/',isAuthorize,userController.getUserCart)
  app.post('/updatePassword/',userController.updatePassword)
 
- 
+
+
+
 
 
  
