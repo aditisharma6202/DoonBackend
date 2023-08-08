@@ -5,6 +5,7 @@ var db = require('../models/index')
 var userProfile = db.userProfile
 var CartItems = db.cartItem
 
+
 const { Op ,Sequelize} = require('sequelize');
 const {JWT_SECRET} = process.env
 const jwt = require('jsonwebtoken')
@@ -305,7 +306,39 @@ const resendEmail = async (req, res) => {
   };
 
 
-
+  const updatePassword = async (req, res) => {
+    try {
+      const { user_id, oldPassword, newPassword } = req.body;
+  
+      // Check if the user with the provided ID exists
+      const user = await userProfile.findByPk(user_id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      // Compare the provided old password with the stored password
+      if (user.password !== oldPassword) {
+        return res.status(400).json({ message: 'Incorrect old password.' });
+      }
+  
+      // Update the user's password
+      await userProfile.update(
+        { password: newPassword },
+        {
+          where: {
+            user_id,
+          },
+        }
+      );
+  
+      return res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      res.status(500).json({ message: 'Error updating password.' });
+    }
+  };
+  
+  
  
 const changePassword = async (req, res) => {
   try {
@@ -462,10 +495,13 @@ const getUserCart = async (req, res) => {
   }
 };
 
-module.exports = getUserCart;
+
+
+
+
 
 
   module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,
     searchProduct,addToCart,
-    getUserCart};
+    getUserCart,updatePassword};
 
