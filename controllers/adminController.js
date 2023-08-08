@@ -9,6 +9,15 @@ var Admin = db.admin
 var userProfile = db.userProfile
 var product = db.product
 var productVariant = db.productVariant
+var variantImages = db.variantImages
+var main_product = db.main_product
+var category = db.category
+var new_varient = db.new_varient
+
+
+
+
+
 
 
 
@@ -118,440 +127,188 @@ const getUsersByMonth = async (req, res) => {
   }
 };
 
-
-
-const updatePassword = async (req, res) => {
+  
+  
+const addProductWithVariants = async (req, res) => {
   try {
-    const { id, oldPassword, newPassword } = req.body;
+    const { name, description, category_id, price, discount_percentage, size, color } = req.body;
+    const images = req.files;
 
-    // Check if the user with the provided ID exists
-    const user = await userProfile.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+    // Check if the provided category_id exists in the description table
+    const existingDescription = await db.category.findOne({
+      where: {
+        category_id: category_id,
+      },
+    });
+
+    if (!existingDescription) {
+      return res.status(400).json({ message: 'Invalid category_id. category not found.' });
     }
 
-    // Compare the provided old password with the stored password
-    if (user.password !== oldPassword) {
-      return res.status(400).json({ message: 'Incorrect old password.' });
-    }
+    // Create the main product
+    const newProduct = await db.main_product.create({
+      name,
+      description,
+      category_id,
+      price,
+      discount_percentage,
+      size,
+      color,
+      image1: images['image1'][0].filename,
+      image2: images['image2'][0].filename,
+      image3: images['image3'][0].filename,
 
-    // Update the user's password
-    await userProfile.update(
-      { password: newPassword },
-      {
-        where: {
-          id,
-        },
-      }
-    );
+    });
 
-    return res.status(200).json({ message: 'Password updated successfully.' });
+    res.status(201).json({ message: 'Main product added successfully.', data: newProduct });
   } catch (error) {
-    console.error('Error updating password:', error);
-    res.status(500).json({ message: 'Error updating password.' });
+    console.error('Error adding main product:', error);
+    res.status(500).json({ message: 'Error adding main product.' });
   }
 };
 
 
-  // const getUsersByMonth = async (req, res) => {
-  //   try {
-  //     const month = req.params.month; // Assuming you pass the month as a URL parameter "month"
-  
-  //     // Fetch users with a profile_created_month value matching the provided month
-  //     const users = await userProfile.findAll({
-  //       where: {
-  //         profile_created_month: month,
-  //       },
-  //     });
-  
-  //     return res.status(200).json({ message: 'Users retrieved successfully.', data: users });
-  //   } catch (error) {
-  //     console.error('Error getting users:', error);
-  //     res.status(500).json({ message: 'Error getting users.' });
-  //   }
-  // };
+const addVariant = async (req, res) => {
+  try {
+    const { product_id, color, size } = req.body;
+    const images = req.files;
 
+    // Check if the provided product_id exists in the main_product table
+    const existingProduct = await db.main_product.findByPk(product_id);
 
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { size, color, quantity, variant_price } = variantData;
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: newProduct.product_id,
-  //         size,
-  //         color,
-  //       });
-  
-   
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.',data:newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  //     console.log(name);
-  //     console.log(price);
-  //     console.log(category_id);
-
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { size, color, } = variantData;
-  //       // const image = req.file.filename
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: newProduct.product_id,
-  //         size,
-  //         color,
-  //       });
-  
-  //       // Add images for the variant
-  //       const variantImages = req.files[`variants[${variants.indexOf(variantData)}][image]`];
-  //       if (variantImages) {
-  //         for (const image of variantImages) {
-  //           await variantPhoto.create({
-  //             variant_id: newVariant.variant_id,
-  //             image: image.filename,
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  //     console.log(name);
-  //     console.log(price);
-  //     console.log(category_id);
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  //     const mainProductId = newProduct.product_id; // Store the product_id
-  //  // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { size, color } = variantData;
-  
-  //       const newVariant = await productVariant.create({
-          
-  //         product_id: mainProductId, // Use the stored product_id
-  //         size,
-  //         color,
-  //       });
-  
-  //       // Add images for the variant
-  //       const variantImages = req.files; // Multer already processes the files and attaches them to req.files
-  //       console.log(variantImages);
-  //       if (variantImages && variantImages.length > 0) {
-  //         for (const image of variantImages) {
-  //           await productVariant.create({
-  //             variant_id: newVariant.variant_id,
-
-  //             image: image.filename,
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const addProductWithVariants = async (req, res) => {
-    try {
-      const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-      // Create the main product
-      const newProduct = await product.create({
-        name,
-        description,
-        category_id,
-        price,
-        discount_percentage,
-      });
-  
-      const mainProductId = newProduct.product_id;
-  
-      // Create variants for the product
-      for (const variantData of variants) {
-        const { size, color, images } = variantData;
-  
-        // Create variant
-        const newVariant = await productVariant.create({
-          product_id: mainProductId,
-          size,
-          color,
-        });
-  
-        // Add images for the variant
-        if (images && images.length > 0) {
-          for (const image of images) {
-            await productVariant.create({
-              product_id: mainProductId,
-              variant_id: newVariant.variant_id, // Associate the image with the correct variant
-              image: image.path, // Save the image file path to the database
-            });
-          }
-        }
-      }
-  
-      res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-    } catch (error) {
-      console.error('Error adding product with variants:', error);
-      res.status(500).json({ message: 'Error adding product with variants.' });
+    if (!existingProduct) {
+      return res.status(400).json({ message: 'Invalid product_id. Main product not found.' });
     }
-  };
+
+    // Create the variant
+    const newVariant = await db.new_varient.create({
+      product_id,
+      color,
+      size,
+      image1: images['image1'][0].filename,
+      image2: images['image2'][0].filename,
+      image3: images['image3'][0].filename,
+
+    });
+
+    res.status(201).json({ message: 'Variant added successfully.', data: newVariant });
+  } catch (error) {
+    console.error('Error adding variant:', error);
+    res.status(500).json({ message: 'Error adding variant.' });
+  }
+};
+
+
+const updateMainProduct = async (req, res) => {
+  try {
+    const { product_id } = req.body;
+    const { name, description, category_id, price, discount_percentage, size, color } = req.body;
+    const images = req.files;
+
+    const updatedFields = {
+      name,
+      description,
+      category_id,
+      price,
+      discount_percentage,
+      size,
+      color,
+    };
+
+    // Update image fields if images are provided
+    if (images) {
+      updatedFields.image1 = images['image1'][0].filename;
+      updatedFields.image2 = images['image2'][0].filename;
+      updatedFields.image3 = images['image3'][0].filename;
+    }
+
+    const [affectedRows] = await db.main_product.update(updatedFields, {
+      where: {
+        product_id: product_id,
+      },
+    });
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ message: 'Main product not found.' });
+    }
+
+    res.status(200).json({ message: 'Main product updated successfully.' });
+  } catch (error) {
+    console.error('Error updating main product:', error);
+    res.status(500).json({ message: 'Error updating main product.' });
+  }
+};
+const getMainProductById = async (req, res) => {
+  try {
+    const { product_id } = req.body;
+
+    // Find the main product by product_id along with its variants
+    const mainProduct = await db.main_product.findOne({
+      where: {
+        product_id: product_id,
+      },
+      include: {
+        model: db.new_varient, // Assuming your variant model is named "variant"
+        where: {
+          product_id: product_id,
+        },
+      },
+    });
+
+    if (!mainProduct) {
+      return res.status(404).json({ message: 'Main product not found.' });
+    }
+
+    res.status(200).json({ data: mainProduct });
+  } catch (error) {
+    console.error('Error fetching main product:', error);
+    res.status(500).json({ message: 'Error fetching main product.' });
+  }
+};
+
+
+const deleteMainProduct = async (req, res) => {
+  try {
+    const { product_id } = req.body;
+
+    const deletedProduct = await db.main_product.destroy({
+      where: {
+        product_id: product_id,
+      },
+    });
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: 'Main product not found.' });
+    }
+
+    res.status(200).json({ message: 'Main product deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting main product:', error);
+    res.status(500).json({ message: 'Error deleting main product.' });
+  }
+};
+
+
+const getVariantById = async (req, res) => {
+  try {
+    const { variant_id } = req.body;
+
+    const variant = await db.new_varient.findByPk(variant_id);
+
+    if (!variant) {
+      return res.status(404).json({ message: 'Variant not found.' });
+    }
+
+    res.status(200).json({ data: variant });
+  } catch (error) {
+    console.error('Error fetching variant:', error);
+    res.status(500).json({ message: 'Error fetching variant.' });
+  }
+};
 
 
 
 
 
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     const mainProductId = newProduct.product_id;
-  
-  //     // Create variants for the product
-  //     for (let i = 0; i < variants.length; i++) {
-  //       const variantData = variants[i];
-  //       const { size, color, images } = variantData;
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: mainProductId,
-  //         size,
-  //         color,
-  //       });
-  
-  //       // Add images for the variant
-  //       if (images && images.length > 0) {
-  //         for (const image of images) {
-  //           await productVariant.create({
-  //             product_id: mainProductId,
-  //             variant_id: newVariant.variant_id, // Associate the image with the correct variant
-  //             image: image, // Save the image file path to the database
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-
-
-
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     const mainProductId = newProduct.product_id;
-  
-  //     // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { color } = variantData;
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: mainProductId,
-  //         color,
-  //       });
-  
-  //       // Add images for the variant
-  //       const variantImages = req.files[`variants[${variants.indexOf(variantData)}][images]`]; // Use the correct field name
-  //       if (variantImages && variantImages.length > 0) {
-  //         for (const image of variantImages) {
-  //           await productVariant.create({
-  //             // variant_id: newVariant.variant_id,
-  //             image: image.filename,
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     const mainProductId = newProduct.product_id;
-  
-  //     // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { color } = variantData;
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: mainProductId,
-  //         color,
-  //       });
-  
-  //       // Add images for the variant
-  //       const variantImages = req.files[`variants[${variants.indexOf(variantData)}][images]`];
-  //       if (variantImages && variantImages.length > 0) {
-  //         for (const image of variantImages) {
-  //           console.log(image.path); // Check if the path is correct
-  //           await productVariant.create({
-  //             product_id: mainProductId,
-  //             image: image.path, // Save the image file path to the database
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-  
-
-
-  // const addProductWithVariants = async (req, res) => {
-  //   try {
-  //     const { name, description, category_id, price, discount_percentage, variants } = req.body;
-  
-  //     // Create the main product
-  //     const newProduct = await product.create({
-  //       name,
-  //       description,
-  //       category_id,
-  //       price,
-  //       discount_percentage,
-  //     });
-  
-  //     const mainProductId = newProduct.product_id;
-  
-  //     // Create variants for the product
-  //     for (const variantData of variants) {
-  //       const { color } = variantData;
-  //       const { images } = variantData;
-
-  
-  //       const newVariant = await productVariant.create({
-  //         product_id: mainProductId,
-  //         color,
-  //       });
-  // console.log(images);
-  //       // Add images for the variant
-  //       if (variantData.images && variantData.images.length > 0) {
-  //         for (const image of variantData.images) {
-  //           await productVariant.create({
-  //             product_id: mainProductId,
-  //             image: image, // Save the image file path to the database
-  //           });
-  //         }
-  //       }
-  //     }
-  
-  //     res.status(201).json({ message: 'Product with variants added successfully.', data: newProduct });
-  //   } catch (error) {
-  //     console.error('Error adding product with variants:', error);
-  //     res.status(500).json({ message: 'Error adding product with variants.' });
-  //   }
-  // };
-
-  module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants}
+  module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
+    getMainProductById,deleteMainProduct,getVariantById}
