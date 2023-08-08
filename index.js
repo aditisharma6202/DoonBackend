@@ -75,12 +75,18 @@ const filefilter = (req,file,cb)=>{
  app.get('/getProductsByCategoryId/:category_id',productController.getProductsByCategoryId)
  app.post('/Admin_signup',adminController.Admin_signup)
  app.get('/Admin_login',adminController.Admin_login)
- app.post('/addProductWithVariants',adminController.addProductWithVariants)
+//  app.post('/addProductWithVariants', upload.array('variants[0][images]', 2), adminController.addProductWithVariants);
 
+
+app.post('/addProductWithVariants', upload.fields([
+    { name: 'variants[0][images]', maxCount: 2 },
+    { name: 'variants[1][images]', maxCount: 2 },
+    // Add more fields for additional variants as needed
+  ]), adminController.addProductWithVariants);
 
  //userAPI
  app.get('/getAllUsers',adminController.getAllUsers)
- app.get('/getUsersByMonth/:month',adminController.getUsersByMonth)
+ app.get('/getUsersByMonth',adminController.getUsersByMonth)
  app.post('/signupUsers',userController.signupUsers)
  app.post('/verifyOTP/:id',userController.verifyOTP)
  app.post('/savePassword/',userController.savePassword)
@@ -93,6 +99,9 @@ const filefilter = (req,file,cb)=>{
  app.post('/addToCart/',isAuthorize,userController.addToCart)
  app.get('/getUserDetails/',isAuthorize,userController.getUserDetails)
  app.get('/getUserCart/',isAuthorize,userController.getUserCart)
+ app.post('/updatePassword/',userController.updatePassword)
+
+ 
 
 
  
