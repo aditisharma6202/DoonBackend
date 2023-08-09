@@ -16,6 +16,8 @@ var new_varient = db.new_varient
 var tender = db.tender
 var notice = db.notice
 var announcement = db.announcement
+var tenderForm = db.tenderForm
+
 
 
 
@@ -401,304 +403,34 @@ const getAllProducts = async (req, res) => {
 };
 
 
-const add_announcement = async (req, res) => {
+
+
+
+const addTenderForm = async (req, res) => {
   try {
-    const { value, input,is_active } = req.body;
+    const { criteria, datatype, is_active, text } = req.body;
 
-    // Create a new data entry in the database
-    const newDataEntry = await db.announcement.create({
-      value,
-      input,
-      is_active
-    });
+    // Handle file upload using Multer
+      
 
-    res.status(201).json({ message: 'Data entry added successfully.', data: newDataEntry });
-  } catch (error) {
-    console.error('Error adding data entry:', error);
-    res.status(500).json({ message: 'Error adding data entry.' });
-  }
-};
+      const file = req.file.filename
 
-const  add_notice = async (req, res) => {
-  try {
-    const { value, input,is_active } = req.body;
+      // Create a new announcement entry in the database
+      const newAnnouncement = await db.tenderForm.create({
+        criteria,
+        datatype,
+        is_active,
+        file: file,
+        text,
+      });
 
-    // Create a new data entry in the database
-    const newDataEntry = await db.notice.create({
-      value,
-      input,
-      is_active
-    });
-
-    res.status(201).json({ message: 'Data entry added successfully.', data: newDataEntry });
-  } catch (error) {
-    console.error('Error adding data entry:', error);
-    res.status(500).json({ message: 'Error adding data entry.' });
-  }
-};
-
-const add_tender = async (req, res) => {
-  try {
-    const { value, input,is_active } = req.body;
-
-    const newDataEntry = await db.tender.create({
-      value,
-      input,
-      is_active
-    });
-
-    res.status(201).json({ message: 'Data entry added successfully.', data: newDataEntry });
-  } catch (error) {
-    console.error('Error adding data entry:', error);
-    res.status(500).json({ message: 'Error adding data entry.' });
-  }
-};
-
-
-
-const get_announcement = async (req, res) => {
-  try {
-    const announcements = await db.announcement.findAll({
-      where: {
-        is_active: true,
-      },
-    });
-    res.status(200).json({ data: announcements });
-  } catch (error) {
-    console.error('Error fetching announcements:', error);
-    res.status(500).json({ message: 'Error fetching announcements.' });
-  }
-}
-
-const get_All_announcementr = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const announcement = await db.announcement.findByPk(id);
+      res.status(201).json({ message: 'Announcement added successfully.', data: newAnnouncement });
     
-    if (!announcement) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ data: announcement });
   } catch (error) {
-    console.error('Error fetching announcement:', error);
-    res.status(500).json({ message: 'Error fetching announcement.' });
+    console.error('Error adding announcement:', error);
+    res.status(500).json({ message: 'Error adding announcement.' });
   }
 };
-
-const update_announcement = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const { value, input,is_active } = req.body;
-
-    const updatedAnnouncement = await db.announcement.update(
-      {
-        value,
-        input,
-        is_active
-      },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
-
-    if (!updatedAnnouncement[0]) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement updated successfully.' });
-  } catch (error) {
-    console.error('Error updating announcement:', error);
-    res.status(500).json({ message: 'Error updating announcement.' });
-  }
-};
-
-const delete_announcement = async (req, res) => {
-  try {
-    const { id } = req.body;
-
-    const deletedAnnouncement = await db.announcement.destroy({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!deletedAnnouncement) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement deleted successfully.' });
-  } catch (error) {
-    console.error('Error deleting announcement:', error);
-    res.status(500).json({ message: 'Error deleting announcement.' });
-  }
-};
-
-const get_notice = async (req, res) => {
-  try {
-    const announcements = await db.notice.findAll({
-      where: {
-        is_active: true,
-      },
-    });
-    res.status(200).json({ data: announcements });
-  } catch (error) {
-    console.error('Error fetching announcements:', error);
-    res.status(500).json({ message: 'Error fetching announcements.' });
-  }
-}
-
-const get_All_notice = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const notice = await db.notice.findByPk(id);
-    
-    if (!notice) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ data: notice });
-  } catch (error) {
-    console.error('Error fetching notice:', error);
-    res.status(500).json({ message: 'Error fetching notice.' });
-  }
-};
-
-const update_notice = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const { value, input,is_active } = req.body;
-
-    const updatedAnnouncement = await db.notice.update(
-      {
-        value,
-        input,
-        is_active
-      },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
-
-    if (!updatedAnnouncement[0]) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement updated successfully.' });
-  } catch (error) {
-    console.error('Error updating notice:', error);
-    res.status(500).json({ message: 'Error updating notice.' });
-  }
-};
-
-const delete_notice = async (req, res) => {
-  try {
-    const { id } = req.body;
-
-    const deletedAnnouncement = await db.notice.destroy({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!deletedAnnouncement) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement deleted successfully.' });
-  } catch (error) {
-    console.error('Error deleting notice:', error);
-    res.status(500).json({ message: 'Error deleting notice.' });
-  }
-};
-
-
-const get_tender = async (req, res) => {
-  try {
-    const announcements = await db.tender.findAll({
-      where: {
-        is_active: true,
-      },
-    });
-    res.status(200).json({ data: announcements });
-  } catch (error) {
-    console.error('Error fetching announcements:', error);
-    res.status(500).json({ message: 'Error fetching announcements.' });
-  }
-}
-
-const get_All_tender = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const tender = await db.tender.findByPk(id);
-    
-    if (!tender) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ data: tender });
-  } catch (error) {
-    console.error('Error fetching tender:', error);
-    res.status(500).json({ message: 'Error fetching tender.' });
-  }
-};
-
-const update_tender = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const { value, input,is_active } = req.body;
-
-    const updatedAnnouncement = await db.tender.update(
-      {
-        value,
-        input,
-        is_active
-      },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
-
-    if (!updatedAnnouncement[0]) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement updated successfully.' });
-  } catch (error) {
-    console.error('Error updating tender:', error);
-    res.status(500).json({ message: 'Error updating tender.' });
-  }
-};
-
-const delete_tender = async (req, res) => {
-  try {
-    const { id } = req.body;
-
-    const deletedAnnouncement = await db.tender.destroy({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!deletedAnnouncement) {
-      return res.status(404).json({ message: 'Announcement not found.' });
-    }
-
-    res.status(200).json({ message: 'Announcement deleted successfully.' });
-  } catch (error) {
-    console.error('Error deleting tender:', error);
-    res.status(500).json({ message: 'Error deleting tender.' });
-  }
-};
-
-
-
 
 
 
@@ -706,6 +438,4 @@ const delete_tender = async (req, res) => {
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
-    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,add_announcement,add_notice,add_tender,
-    get_announcement,get_All_announcementr,update_announcement,delete_announcement,get_notice,get_All_notice,update_notice,delete_tender,update_tender,
-    get_All_tender,get_tender,delete_notice}
+    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm}
