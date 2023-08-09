@@ -131,7 +131,7 @@ const getUsersByMonth = async (req, res) => {
   
 const addProductWithVariants = async (req, res) => {
   try {
-    const { name, description, category_id, price, discount_percentage, size, color } = req.body;
+    const { name, description, category_id, price, discount_percentage, size, color,color_hex } = req.body;
     const images = req.files;
 
     // Check if the provided category_id exists in the description table
@@ -157,6 +157,7 @@ const addProductWithVariants = async (req, res) => {
       image1: images['image1'][0].filename,
       image2: images['image2'][0].filename,
       image3: images['image3'][0].filename,
+      color_hex
 
     });
 
@@ -306,9 +307,83 @@ const getVariantById = async (req, res) => {
   }
 };
 
+const deleteVariant = async (req, res) => {
+  try {
+    const { variant_id } = req.body;
+
+    const deletedVariant = await db.new_varient.destroy({
+      where: {
+        variant_id: variant_id,
+      },
+    });
+
+    if (!deletedVariant) {
+      return res.status(404).json({ message: 'Variant not found.' });
+    }
+
+    res.status(200).json({ message: 'Variant deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting variant:', error);
+    res.status(500).json({ message: 'Error deleting variant.' });
+  }
+};
+
+const updateVariant = async (req, res) => {
+  try {
+    const { variant_id } = req.body;
+    const { color, size } = req.body;
+    const images = req.files;
+
+    // Find the variant by variant_id
+    const existingVariant = await db.new_varient.findOne({
+      where: {
+        variant_id: variant_id,
+      },
+    });
+
+    if (!existingVariant) {
+      return res.status(404).json({ message: 'Variant not found.' });
+    }
+
+    // Update variant details
+    const updatedVariant = await db.new_varient.update(
+      {
+        color,
+        size,
+      },
+      {
+        where: {
+          variant_id: variant_id,
+        },
+      }
+    );
+
+    // Update variant images if provided
+    if (images) {
+      await db.new_varient.update(
+        {
+          image1: images['image1'][0].filename,
+          image2: images['image2'][0].filename,
+          image3: images['image3'][0].filename,
+        },
+        {
+          where: {
+            variant_id: variant_id,
+          },
+        }
+      );
+    }
+
+    res.status(200).json({ message: 'Variant updated successfully.' });
+  } catch (error) {
+    console.error('Error updating variant:', error);
+    res.status(500).json({ message: 'Error updating variant.' });
+  }
+};
+
 
 
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
-    getMainProductById,deleteMainProduct,getVariantById}
+    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant}
