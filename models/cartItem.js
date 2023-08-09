@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-    const CartItems = sequelize.define(
-      'CartItems',
+    const userCart = sequelize.define(
+      'userCart',
       {
         CartItems_id: {
           type: DataTypes.INTEGER,
@@ -13,10 +13,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
           defaultValue: 1,
         },
-        price: {
-          type: DataTypes.FLOAT,
-          allowNull: false,
-        },
+       
         total_price: {
           type: DataTypes.FLOAT,
           allowNull: false,
@@ -32,9 +29,9 @@ module.exports = (sequelize, DataTypes) => {
      
       },
       {
-        tableName: 'cart_items',
+        tableName: 'userCart',
       }
     );
   
-    return CartItems;
+    return userCart;
   };
