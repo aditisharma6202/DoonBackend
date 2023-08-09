@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const main_product = sequelize.define('main_product', {
+    const main_product = sequelize.define('main_products_', {
       product_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -44,8 +44,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      color_hex:{
+        type: DataTypes.STRING,
+        allowNull: true,
+      }
     },{
-        tableName: 'main_product',
+        tableName: 'main_products_',
 
     });
     

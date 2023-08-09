@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      color_hex:{
+        type: DataTypes.STRING,
+        allowNull: true,
+      }
     },{
         tableName: 'new_varient',
 
