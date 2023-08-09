@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const new_varient = sequelize.define('new_varient', {
+    const new_varient = sequelize.define('new_varient_', {
       variant_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       }
     },{
-        tableName: 'new_varient',
+        tableName: 'new_varient_',
 
     });
   
