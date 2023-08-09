@@ -106,6 +106,41 @@ app.post('/addProductWithVariants', upload.fields([
 
   app.get('/getAllProducts',adminController.getAllProducts)
 
+  app.post('/add_announcement',adminController.add_announcement)
+  app.post('/add_notice',adminController.add_notice)
+  app.post('/add_tender',adminController.add_tender)
+
+  app.get('/get_announcement',adminController.get_announcement)
+  app.get('/get_All_announcementr',adminController.get_All_announcementr)
+  app.post('/update_announcement',adminController.update_announcement)
+  app.post('/delete_announcement',adminController.delete_announcement)
+  
+  app.post('/update_notice',adminController.update_notice)
+  app.post('/delete_tender',adminController.delete_tender)
+  app.post('/update_tender',adminController.update_tender)
+  app.get('/get_notice',adminController.get_notice)
+  app.get('/get_All_notice',adminController.get_All_notice)
+  app.get('/get_All_tender',adminController.get_All_tender)
+  app.get('/get_tender',adminController.get_tender)
+  app.post('/update_tender',adminController.delete_notice)
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
   
 
   
