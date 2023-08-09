@@ -171,7 +171,7 @@ const addProductWithVariants = async (req, res) => {
 
 const addVariant = async (req, res) => {
   try {
-    const { product_id, color, size } = req.body;
+    const { product_id, color, size ,color_hex} = req.body;
     const images = req.files;
 
     // Check if the provided product_id exists in the main_product table
@@ -189,6 +189,7 @@ const addVariant = async (req, res) => {
       image1: images['image1'][0].filename,
       image2: images['image2'][0].filename,
       image3: images['image3'][0].filename,
+      color_hex
 
     });
 
