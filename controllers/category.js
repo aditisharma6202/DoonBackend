@@ -1,7 +1,7 @@
 
 var db = require('../models/index')
 var category = db.category
-var product = db.product
+var main_product = db.main_product
 
 // var product = db.product
 const { Op } = require('sequelize');
@@ -40,7 +40,7 @@ const add_categories = async (req, res) => {
   
   const get_category = async (req, res) => {
     try {
-      const categoryId = req.params.category_id; // Assuming you pass the category ID in the URL parameter "category_id"
+      const categoryId = req.body.category_id; // Assuming you pass the category ID in the URL parameter "category_id"
   
       // Fetch the category from the database
       const categoryData = await category.findByPk(categoryId);
@@ -50,7 +50,7 @@ const add_categories = async (req, res) => {
       }
   
       // Count the number of products in the category
-      const productCount = await Product.count({ where: { category_id: categoryId } });
+      const productCount = await main_product.count({ where: { category_id: categoryId } });
   
       return res.status(200).json({ data: categoryData, productCount });
     } catch (error) {
@@ -72,7 +72,7 @@ const add_categories = async (req, res) => {
       // Fetch the count of products for each category
       const categoryDataWithProductCount = await Promise.all(
         categories.map(async (cat) => {
-          const productCount = await product.count({ where: { category_id: cat.category_id } });
+          const productCount = await main_product.count({ where: { category_id: cat.category_id } });
           return { ...cat.toJSON(), productCount };
         })
       );
