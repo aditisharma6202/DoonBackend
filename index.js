@@ -96,6 +96,25 @@ app.post('/addProductWithVariants', upload.fields([
 
   app.get('/getMainProductById',adminController.getMainProductById)
   app.post('/deleteMainProduct',adminController.deleteMainProduct)
+  app.get('/getVariantById',adminController.getVariantById)
+  app.post('/deleteVariant',adminController.deleteVariant)
+  app.post('/updateVariant', upload.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 },
+  ]), adminController.updateVariant);
+
+  app.get('/getAllProducts',adminController.getAllProducts)
+
+  
+
+  
+
+  
+  
+
+
+  
 
 
   
