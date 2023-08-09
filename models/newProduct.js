@@ -28,9 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       size: {
         type: DataTypes.STRING,
+        allowNull: true,
+
       },
       color: {
         type: DataTypes.STRING,
+        allowNull: true,
+
       },
       image1: {
         type: DataTypes.STRING, // Adjust data type as needed (e.g., BLOB for images)
