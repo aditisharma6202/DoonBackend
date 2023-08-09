@@ -383,8 +383,21 @@ const updateVariant = async (req, res) => {
 };
 
 
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await db.main_product.findAll(); 
+
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Error fetching products.' });
+  }
+};
+
+
+
 
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
-    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant}
+    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts}
