@@ -17,6 +17,8 @@ var tender = db.tender
 var notice = db.notice
 var announcement = db.announcement
 var tenderForm = db.tenderForm
+var banner = db.banner
+
 
 
 
@@ -435,14 +437,8 @@ const addTenderForm = async (req, res) => {
 
 const getAnnouncementFormById = async (req, res) => {
   try {
-    // const { id } = req.body;
-
-    // Check if the provided ID exists in the database and is_active is true
     const announcementForm = await db.tenderForm.findAll({
-      where: {
-        // id: id,
-        is_active: true,
-      },
+      
     });
 
     if (!announcementForm) {
@@ -509,7 +505,30 @@ const deleteAnnouncementForm = async (req, res) => {
 
 
 
+const addBanner = async (req, res) => {
+  try {
+
+      
+
+      const image = req.file.filename
+
+      // Create a new announcement entry in the database
+      const newAnnouncement = await db.banner.create({
+      
+        image: image,
+      });
+
+      res.status(201).json({ message: 'Banner added successfully.', data: newAnnouncement });
+    
+  } catch (error) {
+    console.error('Error adding announcement:', error);
+    res.status(500).json({ message: 'Error adding announcement.' });
+  }
+};
+
+
+
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner}
