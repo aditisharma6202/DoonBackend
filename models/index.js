@@ -6,6 +6,7 @@ const { Sequelize,DataTypes } = require('sequelize');
 //   dialect: 'mysql',
 // });\
 
+<<<<<<< Updated upstream
 // const sequelize = new Sequelize('silkecommerce', 'root', 'cprakhar999@gmail.com', {
 //   host: 'localhost',
 //   logging:false,
@@ -15,6 +16,9 @@ const { Sequelize,DataTypes } = require('sequelize');
 // });
 
 const sequelize = new Sequelize('silkecommerce', 'doonsilk', '7yT&9s9JszVj', {
+=======
+const sequelize = new Sequelize('silkecommerce', 'root', 'aditi@6202', {
+>>>>>>> Stashed changes
   host: 'localhost',
   logging:false,
   dialect: 'mysql',
