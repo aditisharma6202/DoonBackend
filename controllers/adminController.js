@@ -411,28 +411,29 @@ const getAllProducts = async (req, res) => {
 const addTenderForm = async (req, res) => {
   try {
     const { criteria, datatype, is_active, text } = req.body;
+    let file = null;
 
-    // Handle file upload using Multer
-      
+    // Handle file upload using Multer if a file is included in the request
+    if (req.file) {
+      file = req.file.filename;
+    }
 
-      const file = req.file.filename
+    // Create a new announcement entry in the database
+    const newAnnouncement = await db.tenderForm.create({
+      criteria,
+      datatype,
+      is_active,
+      file,
+      text,
+    });
 
-      // Create a new announcement entry in the database
-      const newAnnouncement = await db.tenderForm.create({
-        criteria,
-        datatype,
-        is_active,
-        file: file,
-        text,
-      });
-
-      res.status(201).json({ message: 'Announcement added successfully.', data: newAnnouncement });
-    
+    res.status(201).json({ message: 'Announcement added successfully.', data: newAnnouncement });
   } catch (error) {
     console.error('Error adding announcement:', error);
     res.status(500).json({ message: 'Error adding announcement.' });
   }
 };
+
 
 
 const getAnnouncementFormById = async (req, res) => {
