@@ -1,14 +1,20 @@
 module.exports = (sequelize, DataTypes) => {
-    const banner = sequelize.define('banner', {
-
-      image: {
+    const banner = sequelize.define('banner_', {
+      image1: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-     
+      image2: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      image3: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },{
-        tableName: 'banner'
-      });
+      tableName: 'banner_'
+    });
   
     return banner;
   };
