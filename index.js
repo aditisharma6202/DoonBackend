@@ -106,6 +106,15 @@ app.post('/addProductWithVariants', upload.fields([
 
   app.get('/getAllProducts',adminController.getAllProducts)
   app.post('/addTenderForm',upload.single('file'),adminController.addTenderForm)
+  app.get('/getAnnouncementFormById',adminController.getAnnouncementFormById)
+  app.post('/deleteAnnouncementForm',adminController.deleteAnnouncementForm)
+  app.post('/updateAnnouncementForm',upload.single('file'),adminController.updateAnnouncementForm)
+
+
+
+  
+
+  
 
 
   
