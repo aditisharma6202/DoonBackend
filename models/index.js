@@ -36,6 +36,8 @@ sequelize.authenticate()
 
 
   db.tenderForm = require('./tenderForm')(sequelize,DataTypes)
+  db.banner = require('./banner')(sequelize,DataTypes)
+
 
   
 
