@@ -433,9 +433,83 @@ const addTenderForm = async (req, res) => {
 };
 
 
+const getAnnouncementFormById = async (req, res) => {
+  try {
+    // const { id } = req.body;
+
+    // Check if the provided ID exists in the database and is_active is true
+    const announcementForm = await db.tenderForm.findAll({
+      where: {
+        // id: id,
+        is_active: true,
+      },
+    });
+
+    if (!announcementForm) {
+      return res.status(404).json({ message: 'Active announcement form not found.' });
+    }
+
+    res.status(200).json({ data: announcementForm });
+  } catch (error) {
+    console.error('Error fetching announcement form:', error);
+    res.status(500).json({ message: 'Error fetching announcement form.' });
+  }
+};
+
+
+
+const updateAnnouncementForm = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const { criteria, datatype, is_active, text } = req.body;
+
+    // Check if the provided ID exists in the database
+    const existingAnnouncementForm = await db.tenderForm.findByPk(id);
+
+    if (!existingAnnouncementForm) {
+      return res.status(404).json({ message: 'Announcement form not found.' });
+    }
+
+    // Update the announcement form data
+    await existingAnnouncementForm.update({
+      criteria,
+      datatype,
+      is_active,
+      text,
+    });
+
+    res.status(200).json({ message: 'Announcement form updated successfully.' });
+  } catch (error) {
+    console.error('Error updating announcement form:', error);
+    res.status(500).json({ message: 'Error updating announcement form.' });
+  }
+};
+
+
+const deleteAnnouncementForm = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    // Check if the provided ID exists in the database
+    const existingAnnouncementForm = await db.tenderForm.findByPk(id);
+
+    if (!existingAnnouncementForm) {
+      return res.status(404).json({ message: 'Announcement form not found.' });
+    }
+
+    // Delete the announcement form data
+    await existingAnnouncementForm.destroy();
+
+    res.status(200).json({ message: 'Announcement form deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting announcement form:', error);
+    res.status(500).json({ message: 'Error deleting announcement form.' });
+  }
+};
 
 
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
-    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm}
+    getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
+    updateAnnouncementForm,deleteAnnouncementForm}
