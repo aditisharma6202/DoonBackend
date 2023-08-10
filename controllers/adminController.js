@@ -435,7 +435,6 @@ const addTenderForm = async (req, res) => {
 };
 
 
-
 const getAnnouncementFormById = async (req, res) => {
   try {
     const announcementForm = await db.tenderForm.findAll({
@@ -508,21 +507,22 @@ const deleteAnnouncementForm = async (req, res) => {
 
 const addBanner = async (req, res) => {
   try {
-      const image = req.file.filename
+    const { image1, image2, image3 } = req.files;
 
-      // Create a new announcement entry in the database
-      const newAnnouncement = await db.banner.create({
-      
-        image: image,
-      });
+    // Create a new banner entry in the database
+    const newBanner = await db.banner.create({
+      image1: image1 ? image1[0].filename : null,
+      image2: image2 ? image2[0].filename : null,
+      image3: image3 ? image3[0].filename : null,
+    });
 
-      res.status(201).json({ message: 'Banner added successfully.', data: newAnnouncement });
-    
+    res.status(201).json({ message: 'Banner added successfully.', data: newBanner });
   } catch (error) {
-    console.error('Error adding announcement:', error);
-    res.status(500).json({ message: 'Error adding announcement.' });
+    console.error('Error adding banner:', error);
+    res.status(500).json({ message: 'Error adding banner.' });
   }
 };
+
 
 
 const getBanner = async (req, res) => {
