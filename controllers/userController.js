@@ -9,7 +9,7 @@ var CartItems = db.cartItem
 const { Op ,Sequelize} = require('sequelize');
 const {JWT_SECRET} = process.env
 const jwt = require('jsonwebtoken')
-var Product = db.product
+var main_product = db.main_product
 const FuzzySet = require('fuzzyset');
 
 
@@ -21,17 +21,16 @@ const randomstring = require('randomstring');
 const { log } = require('console');
 
 
-
 const generateToken = (user_id) => {
   try {
-    const token = jwt.sign({ user_id}, process.env.JWT_SECRET, { expiresIn: '50h' });
+    const token = jwt.sign({ user_id }, process.env.JWT_SECRET);
     return token;
   } catch (err) {
     console.error(err);
     throw new Error('Failed to generate token');
   }
 };
-const saltRounds = 10; 
+const saltRounds = 10;
 
 
 
@@ -437,7 +436,7 @@ const addToCart = async (req, res) => {
     const { product_id, quantity } = req.body;
 
     // Retrieve product details from the database based on product_id
-    const product = await Product.findOne({ where: { product_id: product_id } });
+    const product = await main_product.findOne({ where: { product_id: product_id } });
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
