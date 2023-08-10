@@ -6,7 +6,15 @@ const { Sequelize,DataTypes } = require('sequelize');
 //   dialect: 'mysql',
 // });\
 
-const sequelize = new Sequelize('silkecommerce', 'root', 'cprakhar999@gmail.com', {
+// const sequelize = new Sequelize('silkecommerce', 'root', 'cprakhar999@gmail.com', {
+//   host: 'localhost',
+//   logging:false,
+//   dialect: 'mysql',
+//   // operatorsAliases: false,
+
+// });
+
+const sequelize = new Sequelize('silkecommerce', 'doonsilk', '7yT&9s9JszVj', {
   host: 'localhost',
   logging:false,
   dialect: 'mysql',
