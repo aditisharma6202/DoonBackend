@@ -109,7 +109,7 @@ app.post('/addProductWithVariants', upload.fields([
   app.get('/getAnnouncementFormById',adminController.getAnnouncementFormById)
   app.post('/deleteAnnouncementForm',adminController.deleteAnnouncementForm)
   app.post('/updateAnnouncementForm',upload.single('file'),adminController.updateAnnouncementForm)
-  app.post('/addBanner',upload.single('image'),adminController.addBanner)
+  app.post('/addBanner', upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), adminController.addBanner);
 
   app.get('/getBanner',adminController.getBanner)
 
