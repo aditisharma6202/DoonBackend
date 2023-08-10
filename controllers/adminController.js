@@ -507,9 +507,6 @@ const deleteAnnouncementForm = async (req, res) => {
 
 const addBanner = async (req, res) => {
   try {
-
-      
-
       const image = req.file.filename
 
       // Create a new announcement entry in the database
@@ -527,8 +524,26 @@ const addBanner = async (req, res) => {
 };
 
 
+const getBanner = async (req, res) => {
+  try {
+    const getBanner = await db.banner.findAll({
+      
+    });
+
+    if (!getBanner) {
+      return res.status(404).json({ message: 'Active announcement form not found.' });
+    }
+
+    res.status(200).json({ data: getBanner });
+  } catch (error) {
+    console.error('Error fetching getBanner form:', error);
+    res.status(500).json({ message: 'Error fetching getBanner form.' });
+  }
+};
+
+
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm,addBanner}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner}
