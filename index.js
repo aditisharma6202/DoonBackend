@@ -111,6 +111,9 @@ app.post('/addProductWithVariants', upload.fields([
   app.post('/updateAnnouncementForm',upload.single('file'),adminController.updateAnnouncementForm)
   app.post('/addBanner',upload.single('image'),adminController.addBanner)
 
+  app.get('/getBanner',adminController.getBanner)
+
+
 
 
 
