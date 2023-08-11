@@ -4,6 +4,11 @@ var db = require('../models/index')
 // var category = db.category
 var userProfile = db.userProfile
 var CartItems = db.cartItem
+var wishlist = db.wishlist
+
+
+
+
 
 
 const { Op ,Sequelize} = require('sequelize');
@@ -478,7 +483,7 @@ const getUserCart = async (req, res) => {
     // Fetch the cart items for the user
     const cartItems = await CartItems.findAll({
       where: { user_id: userId },
-      include: { model: Product }, // Include the related product details
+      include: { model: main_product }, // Include the related product details
     });
 
     // Calculate the total price of the cart
@@ -494,13 +499,238 @@ const getUserCart = async (req, res) => {
   }
 };
 
+const updateCartItem = async (req, res) => {
+  try {
+    const { CartItems_id, quantity } = req.body;
+
+    // Check for the JWT token in the request header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    // Retrieve cart item from the database based on cart_item_id and user_id
+    const cartItem = await CartItems.findOne({
+      where: { CartItems_id, user_id: userId },
+    });
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Cart item not found' });
+    }
+
+    // Update quantity and total_price based on the new quantity
+    const product = await main_product.findOne({ where: { product_id: cartItem.product_id } });
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    const price = product.price;
+    const total_price = price * quantity;
+
+    // Update the cart item in the database
+    await cartItem.update({
+      quantity,
+      total_price,
+    });
+
+    res.status(200).json({ message: 'Cart item updated successfully', cartItem });
+  } catch (error) {
+    console.error('Error updating cart item:', error);
+    res.status(500).json({ error: 'Failed to update cart item' });
+  }
+};
 
 
+
+const deleteCartItem = async (req, res) => {
+  try {
+    const { CartItems_id } = req.body;
+
+    // Check for the JWT token in the request header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    // Retrieve cart item from the database based on cart_item_id and user_id
+    const cartItem = await CartItems.findOne({
+      where: { CartItems_id, user_id: userId },
+    });
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Cart item not found' });
+    }
+
+    // Delete the cart item from the database
+    await cartItem.destroy();
+
+    res.status(200).json({ message: 'Cart item deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting cart item:', error);
+    res.status(500).json({ error: 'Failed to delete cart item' });
+  }
+};
+
+
+
+
+const addToWishlist = async (req, res) => {
+  try {
+    // Verify the token and get the user_id from the payload
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    const { product_id } = req.body;
+
+    // Check if the product is already in the user's wishlist
+    const existingItem = await wishlist.findOne({
+      where: { user_id: userId, product_id: product_id }
+    });
+
+    if (existingItem) {
+      return res.status(400).json({ message: 'Product already exists in wishlist.' });
+    }
+
+    // Add the product to the user's wishlist
+    const newItem = await wishlist.create({
+      user_id: userId,
+      product_id: product_id
+    });
+
+    res.status(201).json({ message: 'Product added to wishlist successfully.', data: newItem });
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    res.status(500).json({ message: 'Error adding to wishlist.' });
+  }
+};
+
+const removeFromWishlist = async (req, res) => {
+  try {
+    // Verify the token and get the user_id from the payload
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    const { wishlist_item_id } = req.body;
+
+    // Delete the wishlist item
+    const deletedItem = await wishlist.destroy({
+      where: { user_id: userId, wishlist_item_id: wishlist_item_id }
+    });
+
+    if (!deletedItem) {
+      return res.status(404).json({ message: 'Wishlist item not found.' });
+    }
+
+    res.status(200).json({ message: 'Wishlist item removed successfully.' });
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    res.status(500).json({ message: 'Error removing from wishlist.' });
+  }
+};
+
+const updateWishlistItem = async (req, res) => {
+  try {
+    // Verify the token and get the user_id from the payload
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    const { wishlist_item_id } = req.body;
+    const { product_id } = req.body;
+
+    // Update the wishlist item's product_id
+    const updatedItem = await wishlist.update(
+      { product_id: product_id },
+      { where: { user_id: userId, wishlist_item_id: wishlist_item_id } }
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Wishlist item not found.' });
+    }
+
+    res.status(200).json({ message: 'Wishlist item updated successfully.' });
+  } catch (error) {
+    console.error('Error updating wishlist item:', error);
+    res.status(500).json({ message: 'Error updating wishlist item.' });
+  }
+};
+
+const getWishlist = async (req, res) => {
+  try {
+    // Verify the token and get the user_id from the payload
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+    // Get the user's wishlist items
+    const wishlistItems = await wishlist.findAll({
+      where: { user_id: userId },
+      include: [{ model: db.main_product, as: 'product' }] // Include the associated product details
+    });
+
+    res.status(200).json({ data: wishlistItems });
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    res.status(500).json({ message: 'Error fetching wishlist.' });
+  }
+};
+
+// module.exports = {
+//   addToWishlist,
+//   removeFromWishlist,
+//   updateWishlistItem,
+//   getWishlist
+// };
 
 
 
 
   module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,
     searchProduct,addToCart,
-    getUserCart,updatePassword};
+  addToWishlist,removeFromWishlist,getWishlist,updateWishlistItem,
+  getUserCart,updatePassword,updateCartItem,deleteCartItem,};
 

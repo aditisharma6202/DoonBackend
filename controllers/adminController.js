@@ -1,8 +1,3 @@
-// const admin = require('firebase-admin');
-// const credential = require('..silkecommerce-firebase-adminsdk-6cntj-8ae58e346f.json')
-// admin.initializeApp({
-//     credential: admin.credential.cert(credential)
-//   });
 
 var db = require('../models/index')
 var Admin = db.admin
