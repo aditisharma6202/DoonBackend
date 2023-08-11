@@ -175,6 +175,20 @@ app.post('/addProductWithVariants', upload.fields([
  app.get('/getUserDetails/',isAuthorize,userController.getUserDetails)
  app.get('/getUserCart/',isAuthorize,userController.getUserCart)
  app.post('/updatePassword/',userController.updatePassword)
+ app.post('/updateCartItem/',isAuthorize,userController.updateCartItem)
+ app.post('/deleteCartItem/',isAuthorize,userController.deleteCartItem)
+
+ app.post('/addToWishlist/',isAuthorize,userController.addToWishlist)
+ app.get('/getWishlist/',isAuthorize,userController.getWishlist)
+
+
+ 
+
+ 
+
+
+ 
+ 
 
 
 
