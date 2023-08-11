@@ -6,7 +6,6 @@ const { Sequelize,DataTypes } = require('sequelize');
 //   dialect: 'mysql',
 // });\
 
-<<<<<<< Updated upstream
 // const sequelize = new Sequelize('silkecommerce', 'root', 'cprakhar999@gmail.com', {
 //   host: 'localhost',
 //   logging:false,
@@ -16,9 +15,6 @@ const { Sequelize,DataTypes } = require('sequelize');
 // });
 
 const sequelize = new Sequelize('silkecommerce', 'doonsilk', '7yT&9s9JszVj', {
-=======
-const sequelize = new Sequelize('silkecommerce', 'root', 'aditi@6202', {
->>>>>>> Stashed changes
   host: 'localhost',
   logging:false,
   dialect: 'mysql',
@@ -49,31 +45,12 @@ sequelize.authenticate()
 
   db.tenderForm = require('./tenderForm')(sequelize,DataTypes)
   db.banner = require('./banner')(sequelize,DataTypes)
+  db.wishlist = require('./wishlist')(sequelize,DataTypes)
 
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // db.category.hasMany( db.product,{foreignKey:'category_id'})
-  // db.product.belongsTo(db.category,{ foreignKey: 'category_id' })
 
 
   db.userProfile.hasMany( db.cartItem,{foreignKey:'user_id'})
   db.cartItem.belongsTo(db.userProfile,{ foreignKey: 'user_id' })
-
-
-
 
 
   db.category.hasMany( db.main_product,{foreignKey:'category_id'})
