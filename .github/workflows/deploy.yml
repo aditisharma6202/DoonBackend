@@ -1,0 +1,20 @@
+name: Deploying
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DOON_SILK_VPS_HOST }}
+          username: ${{ secrets.DOON_SILK_VPS_USER }}
+          key: ${{ secrets.DOON_SILK_VPS_PRIVATE_KEY }}
+          script: bash ~/deploy-scripts/backend-deploy.sh
