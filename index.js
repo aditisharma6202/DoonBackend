@@ -23,7 +23,7 @@ app.use(express.json());
 const {isAuthorize} = require('./middleware/Auth')
 
 
-app.use(express.static('public'))
+app.use('/public', express.static('/home/ubuntu/DoonBackend/public'))
 
 const multer = require('multer');
 const path = require("path")
