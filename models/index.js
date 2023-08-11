@@ -14,7 +14,7 @@ const { Sequelize,DataTypes } = require('sequelize');
 
 // });
 
-const sequelize = new Sequelize('silkecommerce', 'doonsilk', '7yT&9s9JszVj', {
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.PASS, {
   host: 'localhost',
   logging:false,
   dialect: 'mysql',
