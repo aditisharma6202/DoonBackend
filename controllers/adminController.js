@@ -519,6 +519,41 @@ const addBanner = async (req, res) => {
 };
 
 
+const updateBanner = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const { image1, image2, image3 } = req.files;
+
+    // Find the existing banner by banner_id
+    const existingBanner = await db.banner.findByPk(id);
+    if (!existingBanner) {
+      return res.status(404).json({ message: 'Banner not found.' });
+    }
+
+    // Update the banner images if new images are provided
+    existingBanner.image1 = image1 ? image1[0].filename : existingBanner.image1;
+    existingBanner.image2 = image2 ? image2[0].filename : existingBanner.image2;
+    existingBanner.image3 = image3 ? image3[0].filename : existingBanner.image3;
+
+    // Save the changes to the database
+    await existingBanner.save();
+
+    res.status(200).json({ message: 'Banner updated successfully.', data: existingBanner });
+  } catch (error) {
+    console.error('Error updating banner:', error);
+   
+    res.status(500).json({ message: 'Error updating banner.' });
+  }
+};
+
+module.exports = {
+  addBanner,
+  updateBanner,
+  // other functions...
+};
+
+
+
 
 const getBanner = async (req, res) => {
   try {
@@ -542,4 +577,4 @@ const getBanner = async (req, res) => {
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner}

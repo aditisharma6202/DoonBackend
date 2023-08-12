@@ -110,49 +110,8 @@ app.post('/addProductWithVariants', upload.fields([
   app.post('/deleteAnnouncementForm',adminController.deleteAnnouncementForm)
   app.post('/updateAnnouncementForm',upload.single('file'),adminController.updateAnnouncementForm)
   app.post('/addBanner', upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), adminController.addBanner);
-
   app.get('/getBanner',adminController.getBanner)
-
-
-
-
-
-  
-
-  
-
-
-  
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-  
-
-  
-
-  
-  
-
-
-  
-
+  app.post('/updateBanner', upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]),adminController.updateBanner)
 
   
 
@@ -180,6 +139,7 @@ app.post('/addProductWithVariants', upload.fields([
 
  app.post('/addToWishlist/',isAuthorize,userController.addToWishlist)
  app.get('/getWishlist/',isAuthorize,userController.getWishlist)
+
 
 
  
