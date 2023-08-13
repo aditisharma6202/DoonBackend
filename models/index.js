@@ -46,6 +46,8 @@ sequelize.authenticate()
   db.tenderForm = require('./tenderForm')(sequelize,DataTypes)
   db.banner = require('./banner')(sequelize,DataTypes)
   db.wishlist = require('./wishlist')(sequelize,DataTypes)
+  db.stock = require('./stock')(sequelize,DataTypes)
+
 
 
 
@@ -61,6 +63,9 @@ sequelize.authenticate()
 
   db.main_product.hasMany( db.cartItem,{foreignKey:'product_id'})
   db.cartItem.belongsTo(db.main_product,{ foreignKey: 'product_id' })
+
+  db.main_product.hasMany( db.stock,{foreignKey:'product_id'})
+  db.stock.belongsTo(db.main_product,{ foreignKey: 'product_id' })
 
 
   sequelize.sync({force:false})

@@ -13,6 +13,8 @@ var notice = db.notice
 var announcement = db.announcement
 var tenderForm = db.tenderForm
 var banner = db.banner
+var stock = db.stock
+
 
 
 
@@ -546,13 +548,6 @@ const updateBanner = async (req, res) => {
   }
 };
 
-module.exports = {
-  addBanner,
-  updateBanner,
-  // other functions...
-};
-
-
 
 
 const getBanner = async (req, res) => {
@@ -573,8 +568,46 @@ const getBanner = async (req, res) => {
 };
 
 
+const addStockStatus = async (req, res) => {
+  try {
+    const { instock, product_id } = req.body;
+
+    const newStockStatus = await db.stock.create({
+      instock,
+      product_id
+    });
+
+    res.status(201).json({ message: 'Stock status added successfully', data: newStockStatus });
+  } catch (error) {
+    console.error('Error adding stock status:', error);
+    res.status(500).json({ message: 'Error adding stock status' });
+  }
+};
+
+const updateStockStatus = async (req, res) => {
+  try {
+    const { stock_id } = req.body;
+    const { instock, product_id } = req.body;
+
+    const stockStatus = await db.stock.findByPk(stock_id);
+
+    if (!stockStatus) {
+      return res.status(404).json({ message: 'Stock status not found' });
+    }
+
+    stockStatus.instock = instock;
+    stockStatus.product_id = product_id;
+    await stockStatus.save();
+
+    res.status(200).json({ message: 'Stock status updated successfully', data: stockStatus });
+  } catch (error) {
+    console.error('Error updating stock status:', error);
+    res.status(500).json({ message: 'Error updating stock status' });
+  }
+};
+
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner,addStockStatus,updateStockStatus}
