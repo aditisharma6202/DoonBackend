@@ -14,6 +14,8 @@ var announcement = db.announcement
 var tenderForm = db.tenderForm
 var banner = db.banner
 var stock = db.stock
+var orders = db.orders
+
 
 
 
@@ -607,7 +609,67 @@ const updateStockStatus = async (req, res) => {
 };
 
 
+const order = async (req, res) => {
+  try {
+    const {
+      phone,
+      shippingAddress,
+      name,
+      address,
+      city,
+      country,
+      state,
+      postalCode,
+      productId,
+      categoryId,
+      userId, // Assuming you have user ID available in the request
+      quantity, // Assuming you have the quantity of items ordered available in the request
+    } = req.body;
+
+    // Create a new order in the database
+    const newOrder = await db.orders.create({
+      phone,
+      shippingAddress,
+      name,
+      address,
+      city,
+      country,
+      state,
+      postalCode,
+      productId,
+      categoryId,
+      userId,
+      quantity,
+    });
+
+    // Send email notification to admin
+    const mailOptions = {
+      from: 'doonsilk',
+      to: 'admin_email@example.com', // Replace with admin's email address
+      subject: 'New Order Placed',
+      text: `A new order has been placed with the following details:\n\n
+             User ID: ${userId}\n
+             Product ID: ${productId}\n
+             Quantity: ${quantity}\n
+             ... (other order details)\n`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+
+    res.status(201).json({ message: 'Order confirmed successfully', data: newOrder });
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    res.status(500).json({ message: 'Error confirming order' });
+  }
+};
+
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner,addStockStatus,updateStockStatus}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner,addStockStatus,updateStockStatus,order}
