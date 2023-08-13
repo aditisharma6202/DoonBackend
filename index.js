@@ -24,7 +24,9 @@ const {isAuthorize} = require('./middleware/Auth')
 
 const path = require("path")
 
-app.use('/public', express.static(path.join(process.cwd(), 'public')))
+// app.use('/public', express.static(path.join(process.cwd(), 'public')))
+app.use('/public/image', express.static(path.join(__dirname, 'public', 'image')));
+
 
 const multer = require('multer');
 
