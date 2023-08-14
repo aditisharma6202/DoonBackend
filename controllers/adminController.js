@@ -249,6 +249,38 @@ const updateMainProduct = async (req, res) => {
     res.status(500).json({ message: 'Error updating main product.' });
   }
 };
+// const getMainProductById = async (req, res) => {
+//   try {
+//     const { product_id } = req.body;
+
+//     // Find the main product by product_id along with its variants
+//     const mainProduct = await db.main_product.findOne({
+//       where: {
+//         product_id: product_id,
+//       },
+//       include: {
+//         model: db.new_varient, // Assuming your variant model is named "variant"
+//         where: {
+//           product_id: product_id,
+//         },
+//       },
+//     });
+
+//     if (!mainProduct) {
+//       return res.status(404).json({ message: 'Main product not found.' });
+//     }
+
+//     res.status(200).json({ data: mainProduct });
+//   } catch (error) {
+//     console.error('Error fetching main product:', error);
+//     res.status(500).json({ message: 'Error fetching main product.' });
+//   }
+// };
+
+
+
+
+
 const getMainProductById = async (req, res) => {
   try {
     const { product_id } = req.body;
@@ -270,7 +302,20 @@ const getMainProductById = async (req, res) => {
       return res.status(404).json({ message: 'Main product not found.' });
     }
 
-    res.status(200).json({ data: mainProduct });
+    // Calculate the actual price based on the discount percentage
+    let actualPrice = mainProduct.price;
+    if (mainProduct.discount_percentage) {
+      const discountPercentage = mainProduct.discount_percentage;
+      actualPrice = mainProduct.price - (mainProduct.price * discountPercentage / 100);
+    }
+
+    // Include the calculated actual price in the response
+    const response = {
+      data: mainProduct,
+      actualPrice: actualPrice,
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     console.error('Error fetching main product:', error);
     res.status(500).json({ message: 'Error fetching main product.' });
