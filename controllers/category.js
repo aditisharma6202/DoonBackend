@@ -40,7 +40,7 @@ const add_categories = async (req, res) => {
   
   const get_category = async (req, res) => {
     try {
-      const categoryId = req.body.category_id; // Assuming you pass the category ID in the URL parameter "category_id"
+      const categoryId = req.params.category_id; // Assuming you pass the category ID in the URL parameter "category_id"
   
       // Fetch the category from the database
       const categoryData = await category.findByPk(categoryId);
