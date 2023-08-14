@@ -96,7 +96,7 @@ app.post('/addProductWithVariants', upload.fields([
   ]), adminController.updateMainProduct);
 
 
-  app.get('/getMainProductById',adminController.getMainProductById)
+  app.get('/getMainProductById/:product_id',adminController.getMainProductById)
   app.post('/deleteMainProduct',adminController.deleteMainProduct)
   app.get('/getVariantById',adminController.getVariantById)
   app.post('/deleteVariant',adminController.deleteVariant)

@@ -283,7 +283,7 @@ const updateMainProduct = async (req, res) => {
 
 const getMainProductById = async (req, res) => {
   try {
-    const { product_id } = req.body;
+    const { product_id } = req.params;
 
     // Find the main product by product_id along with its variants
     const mainProduct = await db.main_product.findOne({
