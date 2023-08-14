@@ -1,7 +1,7 @@
 
 var db = require('../models/index')
 // var category = db.category
-var product = db.product
+var main_product = db.main_product
 const { Op } = require('sequelize');
 
 
@@ -155,7 +155,7 @@ const getProductById = async (req, res) => {
       const categoryId = req.params.category_id;
   
       // Find all products with the given category ID
-      const products = await product.findAll({
+      const products = await main_product.findAll({
         where: {
           category_id: categoryId,
         },
