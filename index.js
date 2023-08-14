@@ -148,6 +148,10 @@ app.post('/addProductWithVariants', upload.fields([
  app.post('/addToWishlist/',isAuthorize,userController.addToWishlist)
  app.get('/getWishlist/',isAuthorize,userController.getWishlist)
 
+ app.get('/getRandomProducts/',userController. getRandomProducts)
+
+
+
 
 
  

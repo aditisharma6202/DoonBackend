@@ -384,12 +384,12 @@ const searchProduct = async (req, res) => {
     const search = req.body.search;
 
     // Perform related name search (case-insensitive) using raw SQL query
-    const relatedProducts = await Product.findAll({
+    const relatedProducts = await main_product.findAll({
       where: Sequelize.literal(`LOWER(name) LIKE LOWER('%${search}%') AND BINARY name != '${search}'`),
     });
 
     // Find the initial searched product to get its category
-    const initialProduct = await Product.findOne({
+    const initialProduct = await main_product.findOne({
       where: Sequelize.literal(`LOWER(name) LIKE LOWER('%${search}%')`),
     });
 
@@ -397,7 +397,7 @@ const searchProduct = async (req, res) => {
       const categoryId = initialProduct.category_id;
 
       // Fetch suggestion products with the same category ID
-      const suggestionProducts = await Product.findAll({
+      const suggestionProducts = await main_product.findAll({
         where: {
           [Op.and]: [
             { category_id: categoryId }, // Same category criteria
@@ -582,6 +582,48 @@ const deleteCartItem = async (req, res) => {
   }
 };
 
+const getrandomroductById = async (req, res) => {
+  try {
+
+    // Find the main product by product_id along with its variants (using LEFT JOIN)
+    const mainProduct = await db.main_product.findAll({
+      where: {
+        product_id: product_id,
+      },
+      include: {
+        model: db.new_varient, // Assuming your variant model is named "variant"
+        where: {
+          product_id: product_id,
+        },
+        required: false, // Use LEFT JOIN to include variants (if available)
+      },
+    });
+
+    if (!mainProduct) {
+      return res.status(404).json({ message: 'Main product not found.' });
+    }
+
+    // Calculate the actual price based on the discount percentage
+    let actualPrice = mainProduct.price;
+    if (mainProduct.discount_percentage) {
+      const discountPercentage = mainProduct.discount_percentage;
+      actualPrice = mainProduct.price - (mainProduct.price * discountPercentage / 100);
+    }
+
+    // Include the calculated actual price in the response
+    const response = {
+      data: mainProduct,
+      actualPrice: actualPrice,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error('Error fetching main product:', error);
+    res.status(500).json({ message: 'Error fetching main product.' });
+  }
+};
+
+
 
 
 
@@ -719,12 +761,44 @@ const getWishlist = async (req, res) => {
   }
 };
 
-// module.exports = {
-//   addToWishlist,
-//   removeFromWishlist,
-//   updateWishlistItem,
-//   getWishlist
-// };
+
+
+const getRandomProducts = async (req, res) => {
+  try {
+    // Find three random products along with their variants (using LEFT JOIN)
+    const randomProducts = await db.main_product.findAll({
+      include: {
+        model: db.new_varient, // Assuming your variant model is named "variant"
+        required: false, // Use LEFT JOIN to include variants (if available)
+      },
+      order: db.Sequelize.literal('RAND()'), // Order by random
+      limit: 3, // Limit to three results
+    });
+
+    if (!randomProducts || randomProducts.length === 0) {
+      return res.status(404).json({ message: 'No random products found.' });
+    }
+
+    // Calculate the actual price based on the discount percentage for each product
+    const productsWithActualPrice = randomProducts.map(product => {
+      let actualPrice = product.price;
+      if (product.discount_percentage) {
+        const discountPercentage = product.discount_percentage;
+        actualPrice = product.price - (product.price * discountPercentage / 100);
+      }
+      return {
+        ...product.toJSON(),
+        actualPrice: actualPrice,
+      };
+    });
+
+    res.status(200).json(productsWithActualPrice);
+  } catch (error) {
+    console.error('Error fetching random products:', error);
+    res.status(500).json({ message: 'Error fetching random products.' });
+  }
+};
+
 
 
 
@@ -732,5 +806,5 @@ const getWishlist = async (req, res) => {
   module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,
     searchProduct,addToCart,
   addToWishlist,removeFromWishlist,getWishlist,updateWishlistItem,
-  getUserCart,updatePassword,updateCartItem,deleteCartItem,};
+  getUserCart,updatePassword,updateCartItem,deleteCartItem,getrandomroductById,getRandomProducts};
 
