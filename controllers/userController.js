@@ -884,7 +884,7 @@ const order = async (req, res) => {
              Product ID: ${productid}\n
              Quantity: ${quantity}\n
              `;
-      await sendorderMail('cprakhar999@gmail.com', mailSubject, content);
+      await sendorderMail('ucrf.silk@gmail.com', mailSubject, content);
 
     // Send email notification to admin
   ;
@@ -930,8 +930,7 @@ const getcheckoutProducts = async (req, res) => {
   }
 };
 
-// Add this route to your Express app
-// app.get('/api/checkout/products', isAuthorize, getcheckoutProducts);
+
 
 
 
