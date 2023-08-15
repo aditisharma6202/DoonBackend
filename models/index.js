@@ -14,8 +14,8 @@ const { Sequelize,DataTypes } = require('sequelize');
 
 // });
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-  host: 'localhost',
+const sequelize = new Sequelize('Database-1', 'dbmasteruser', '05fzJZcepiwlf3,A,6mQ}cM0.&a*[1bi', {
+  host: 'ls-fa310113994b9814904f35c6ec62956753e63a01.c8mpioyjghq2.ap-south-1.rds.amazonaws.com',
   logging:false,
   dialect: 'mysql',
   // operatorsAliases: false,
@@ -47,7 +47,7 @@ sequelize.authenticate()
   db.banner = require('./banner')(sequelize,DataTypes)
   db.wishlist = require('./wishlist')(sequelize,DataTypes)
   db.stock = require('./stock')(sequelize,DataTypes)
-  // db.orders = require('./orders')(sequelize,DataTypes)
+  db.orders = require('./orders')(sequelize,DataTypes)
 
 
 
@@ -69,12 +69,15 @@ sequelize.authenticate()
   db.main_product.hasMany( db.stock,{foreignKey:'product_id'})
   db.stock.belongsTo(db.main_product,{ foreignKey: 'product_id' })
 
-  // db.main_product.hasMany( db.orders,{foreignKey:'product_id'})
-  // db.orders.belongsTo(db.main_product,{ foreignKey: 'product_id' })
+  db.main_product.hasMany( db.orders,{foreignKey:'product_id'})
+  db.orders.belongsTo(db.main_product,{ foreignKey: 'product_id' })
 
-  // db.main_product.hasMany( db.category,{foreignKey:'product_id'})
-  // db.category.belongsTo(db.main_product,{ foreignKey: 'product_id' })
+  db.userProfile.hasMany( db.orders,{foreignKey:'user_id'})
+  db.orders.belongsTo(db.userProfile,{ foreignKey: 'user_id' })
 
 
+ db.cartItem.hasMany( db.orders,{foreignKey:'CartItems_id'})
+  db.orders.belongsTo(db.cartItem,{ foreignKey: 'CartItems_id' })
+  
   sequelize.sync({force:false})
   module.exports = db

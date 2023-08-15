@@ -5,6 +5,8 @@ var db = require('../models/index')
 var userProfile = db.userProfile
 var CartItems = db.cartItem
 var wishlist = db.wishlist
+var orders = db.orders
+
 
 
 
@@ -20,10 +22,11 @@ const FuzzySet = require('fuzzyset');
 
 
 
-
+const sendorderMail = require('../helper/orderSendMail')
 const sendMail = require('../helper/sendMail')
 const randomstring = require('randomstring');
 const { log } = require('console');
+const cartItem = require('../models/cartItem')
 
 
 const generateToken = (user_id) => {
@@ -765,11 +768,10 @@ const getWishlist = async (req, res) => {
 
 const getRandomProducts = async (req, res) => {
   try {
-    // Find three random products along with their variants (using LEFT JOIN)
     const randomProducts = await db.main_product.findAll({
       include: {
-        model: db.new_varient, // Assuming your variant model is named "variant"
-        required: false, // Use LEFT JOIN to include variants (if available)
+        model: db.new_varient, 
+        required: false, 
       },
       order: db.Sequelize.literal('RAND()'), // Order by random
       limit: 3, // Limit to three results
@@ -800,11 +802,143 @@ const getRandomProducts = async (req, res) => {
 };
 
 
+const order = async (req, res) => {
+  try {
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+
+    // Verify the token and get the user_id from the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+    const {
+      phone,
+      shippingAddress,
+      name,
+      address,
+      city,
+      country,
+      state,
+      postalCode,
+      productid,
+      categoryId,
+      quantity,
+      CartItems_id
+      
+    } = req.body;
+
+    // Check if product_id exists
+    const product = await db.main_product.findOne({
+      where: {
+        product_id: productid,
+      },
+    });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found.' });
+    }
+
+    const order = await db.cartItem.findOne({
+      where: {
+        CartItems_id: CartItems_id,
+      },
+    });
+    if (!CartItems_id) {
+      return res.status(404).json({ message: 'CartItems_id not found.' });
+    }
+
+    // Check if user_id exists
+    const user = await db.userProfile.findOne({
+      where: {
+        user_id: userId,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Create a new order in the database
+    const newOrder = await db.orders.create({
+      phone,
+      shippingAddress,
+      name,
+      address,
+      city,
+      country,
+      state,
+      postalCode,
+      product_id: productid,
+      category_id: categoryId,
+      user_id: userId, // Use lowercase user_id
+      quantity,
+      CartItems_id
+    });
+
+    const mailSubject = 'New Order Placed'; // No need for `const` keyword here
+    const content = `A new order has been placed with the following details:\n\n
+             User ID: ${userId}\n
+             Product ID: ${productid}\n
+             Quantity: ${quantity}\n
+             `;
+      await sendorderMail('cprakhar999@gmail.com', mailSubject, content);
+
+    // Send email notification to admin
+  ;
+
+    res.status(201).json({ message: 'Order confirmed successfully', data: newOrder });
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    res.status(500).json({ message: 'Error confirming order' });
+  }
+};
+
+
+
+const getcheckoutProducts = async (req, res) => {
+  try {
+    // Get the user ID from the token
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: Token missing' });
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+
+    console.log(userId);
+    const cartItems = await CartItems.findAll({
+      where: {
+        user_id: userId,
+      },
+      include: {
+       model: main_product ,
+       attributes: ['product_id', 'name', 'price'],  
+      },
+    });
+
+    res.status(200).json({ data: cartItems });
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    res.status(500).json({ error: 'Error fetching cart items' });
+  }
+};
+
+// Add this route to your Express app
+// app.get('/api/checkout/products', isAuthorize, getcheckoutProducts);
+
+
 
 
 
   module.exports = { signupUsers,verifyOTP,resendEmail,savePassword,addUserDetails,getUserDetails,loginUser,userLogout,changePassword,
     searchProduct,addToCart,
   addToWishlist,removeFromWishlist,getWishlist,updateWishlistItem,
-  getUserCart,updatePassword,updateCartItem,deleteCartItem,getrandomroductById,getRandomProducts};
+  getUserCart,updatePassword,updateCartItem,deleteCartItem,getrandomroductById,getRandomProducts,order,getcheckoutProducts};
 
