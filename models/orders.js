@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Order = sequelize.define('UserOrder', {
+    const Order = sequelize.define('_UserOrder', {
       phone: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       city: {
         type: DataTypes.STRING,
@@ -34,18 +34,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       product_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       category_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       CartItems_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
     }, 
-  {  tableName: 'UserOrder',
+  {  tableName: '_UserOrder',
     timestamps: true});
   
     return Order;

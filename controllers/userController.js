@@ -820,36 +820,36 @@ const order = async (req, res) => {
       phone,
       shippingAddress,
       name,
-      address,
+     // address,
       city,
       country,
       state,
       postalCode,
-      productid,
-      categoryId,
+      // productid,
+      //categoryId,
       quantity,
-      CartItems_id
+     // CartItems_id
       
     } = req.body;
 
     // Check if product_id exists
-    const product = await db.main_product.findOne({
-      where: {
-        product_id: productid,
-      },
-    });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found.' });
-    }
+    // const product = await db.main_product.findOne({
+    //   where: {
+    //     product_id: productid,
+    //   },
+    // });
+    // if (!product) {
+    //   return res.status(404).json({ message: 'Product not found.' });
+    // }
 
-    const order = await db.cartItem.findOne({
-      where: {
-        CartItems_id: CartItems_id,
-      },
-    });
-    if (!CartItems_id) {
-      return res.status(404).json({ message: 'CartItems_id not found.' });
-    }
+    // const order = await db.cartItem.findOne({
+    //   where: {
+    //     CartItems_id: CartItems_id,
+    //   },
+    // });
+    // if (!CartItems_id) {
+    //   return res.status(404).json({ message: 'CartItems_id not found.' });
+    // }
 
     // Check if user_id exists
     const user = await db.userProfile.findOne({
@@ -866,22 +866,22 @@ const order = async (req, res) => {
       phone,
       shippingAddress,
       name,
-      address,
+      //address,
       city,
       country,
       state,
       postalCode,
-      product_id: productid,
-      category_id: categoryId,
+      //product_id: productid,
+      //category_id: categoryId,
       user_id: userId, // Use lowercase user_id
       quantity,
-      CartItems_id
+     // CartItems_id
     });
 
     const mailSubject = 'New Order Placed'; // No need for `const` keyword here
     const content = `A new order has been placed with the following details:\n\n
              User ID: ${userId}\n
-             Product ID: ${productid}\n
+           
              Quantity: ${quantity}\n
              `;
       await sendorderMail('ucrf.silk@gmail.com', mailSubject, content);
