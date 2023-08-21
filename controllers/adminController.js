@@ -13,10 +13,6 @@ var notice = db.notice
 var announcement = db.announcement
 var tenderForm = db.tenderForm
 var banner = db.banner
-var stock = db.stock
-var orders = db.orders
-
-
 
 
 
@@ -249,86 +245,11 @@ const updateMainProduct = async (req, res) => {
     res.status(500).json({ message: 'Error updating main product.' });
   }
 };
-// const getMainProductById = async (req, res) => {
-//   try {
-//     const { product_id } = req.body;
-
-//     // Find the main product by product_id along with its variants
-//     const mainProduct = await db.main_product.findOne({
-//       where: {
-//         product_id: product_id,
-//       },
-//       include: {
-//         model: db.new_varient, // Assuming your variant model is named "variant"
-//         where: {
-//           product_id: product_id,
-//         },
-//       },
-//     });
-
-//     if (!mainProduct) {
-//       return res.status(404).json({ message: 'Main product not found.' });
-//     }
-
-//     res.status(200).json({ data: mainProduct });
-//   } catch (error) {
-//     console.error('Error fetching main product:', error);
-//     res.status(500).json({ message: 'Error fetching main product.' });
-//   }
-// };
-
-
-
-
-
-// const getMainProductById = async (req, res) => {
-//   try {
-//     const { product_id } = req.params;
-
-//     // Find the main product by product_id along with its variants
-//     const mainProduct = await db.main_product.findOne({
-//       where: {
-//         product_id: product_id,
-//       },
-//       include: {
-//         model: db.new_varient, // Assuming your variant model is named "variant"
-//         where: {
-//           product_id: product_id,
-//         },
-//       },
-//     });
-
-//     if (!mainProduct) {
-//       return res.status(404).json({ message: 'Main product not found.' });
-//     }
-
-//     // Calculate the actual price based on the discount percentage
-//     let actualPrice = mainProduct.price;
-//     if (mainProduct.discount_percentage) {
-//       const discountPercentage = mainProduct.discount_percentage;
-//       actualPrice = mainProduct.price - (mainProduct.price * discountPercentage / 100);
-//     }
-
-//     // Include the calculated actual price in the response
-//     const response = {
-//       data: mainProduct,
-//       actualPrice: actualPrice,
-//     };
-
-//     res.status(200).json(response);
-//   } catch (error) {
-//     console.error('Error fetching main product:', error);
-//     res.status(500).json({ message: 'Error fetching main product.' });
-//   }
-// };
-
-
-
 const getMainProductById = async (req, res) => {
   try {
-    const { product_id } = req.params;
+    const { product_id } = req.body;
 
-    // Find the main product by product_id along with its variants (using LEFT JOIN)
+    // Find the main product by product_id along with its variants
     const mainProduct = await db.main_product.findOne({
       where: {
         product_id: product_id,
@@ -338,7 +259,6 @@ const getMainProductById = async (req, res) => {
         where: {
           product_id: product_id,
         },
-        required: false, // Use LEFT JOIN to include variants (if available)
       },
     });
 
@@ -346,20 +266,7 @@ const getMainProductById = async (req, res) => {
       return res.status(404).json({ message: 'Main product not found.' });
     }
 
-    // Calculate the actual price based on the discount percentage
-    let actualPrice = mainProduct.price;
-    if (mainProduct.discount_percentage) {
-      const discountPercentage = mainProduct.discount_percentage;
-      actualPrice = mainProduct.price - (mainProduct.price * discountPercentage / 100);
-    }
-
-    // Include the calculated actual price in the response
-    const response = {
-      data: mainProduct,
-      actualPrice: actualPrice,
-    };
-
-    res.status(200).json(response);
+    res.status(200).json({ data: mainProduct });
   } catch (error) {
     console.error('Error fetching main product:', error);
     res.status(500).json({ message: 'Error fetching main product.' });
@@ -612,34 +519,6 @@ const addBanner = async (req, res) => {
 };
 
 
-const updateBanner = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const { image1, image2, image3 } = req.files;
-
-    // Find the existing banner by banner_id
-    const existingBanner = await db.banner.findByPk(id);
-    if (!existingBanner) {
-      return res.status(404).json({ message: 'Banner not found.' });
-    }
-
-    // Update the banner images if new images are provided
-    existingBanner.image1 = image1 ? image1[0].filename : existingBanner.image1;
-    existingBanner.image2 = image2 ? image2[0].filename : existingBanner.image2;
-    existingBanner.image3 = image3 ? image3[0].filename : existingBanner.image3;
-
-    // Save the changes to the database
-    await existingBanner.save();
-
-    res.status(200).json({ message: 'Banner updated successfully.', data: existingBanner });
-  } catch (error) {
-    console.error('Error updating banner:', error);
-   
-    res.status(500).json({ message: 'Error updating banner.' });
-  }
-};
-
-
 
 const getBanner = async (req, res) => {
   try {
@@ -659,48 +538,8 @@ const getBanner = async (req, res) => {
 };
 
 
-const addStockStatus = async (req, res) => {
-  try {
-    const { instock, product_id } = req.body;
-
-    const newStockStatus = await db.stock.create({
-      instock,
-      product_id
-    });
-
-    res.status(201).json({ message: 'Stock status added successfully', data: newStockStatus });
-  } catch (error) {
-    console.error('Error adding stock status:', error);
-    res.status(500).json({ message: 'Error adding stock status' });
-  }
-};
-
-const updateStockStatus = async (req, res) => {
-  try {
-    const { stock_id } = req.body;
-    const { instock, product_id } = req.body;
-
-    const stockStatus = await db.stock.findByPk(stock_id);
-
-    if (!stockStatus) {
-      return res.status(404).json({ message: 'Stock status not found' });
-    }
-
-    stockStatus.instock = instock;
-    stockStatus.product_id = product_id;
-    await stockStatus.save();
-
-    res.status(200).json({ message: 'Stock status updated successfully', data: stockStatus });
-  } catch (error) {
-    console.error('Error updating stock status:', error);
-    res.status(500).json({ message: 'Error updating stock status' });
-  }
-};
-
-
-
 
 
   module.exports ={Admin_signup,Admin_login,getAllUsers,getUsersByMonth,addProductWithVariants,addVariant,updateMainProduct,
     getMainProductById,deleteMainProduct,getVariantById,deleteVariant,updateVariant,getAllProducts,addTenderForm,getAnnouncementFormById,
-    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner,updateBanner,addStockStatus,updateStockStatus}
+    updateAnnouncementForm,deleteAnnouncementForm,addBanner,getBanner}
